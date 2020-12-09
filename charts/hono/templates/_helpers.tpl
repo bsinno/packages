@@ -227,40 +227,6 @@ credentials:
 {{- else }}
   {{- required ".Values.adapters.credentialsSpec MUST be set if example Device Registry is disabled" .dot.Values.adapters.credentialsSpec | toYaml | nindent 2 }}
 {{- end }}
-deviceConnection:
-{{- if .dot.Values.dataGridSpec }}
-  {{/* user has specified connection parameters for existing data grid */}}
-  {{- .dot.Values.dataGridSpec | toYaml | nindent 2 }}
-{{- else if .dot.Values.dataGridExample.enabled }}
-  {{/* connect directly to example data grid */}}
-  {{- $serverName := printf "%s-data-grid" .dot.Release.Name }}
-  serverList: {{ printf "%s:11222" $serverName | quote }}
-  authServerName: {{ $serverName | quote }}
-  authUsername: {{ .dot.Values.dataGridExample.authUsername | quote }}
-  authPassword: {{ .dot.Values.dataGridExample.authPassword | quote }}
-  authRealm: "ApplicationRealm"
-  saslMechanism: "DIGEST-MD5"
-  socketTimeout: 5000
-  connectTimeout: 5000
-{{- else if .dot.Values.adapters.deviceConnectionSpec }}
-  {{/* user has provided connection params for third party Device Connection service */}}
-  {{- range $key, $value := .dot.Values.adapters.deviceConnectionSpec }}
-  {{ $key }}: {{ $value }}
-  {{- end }}
-{{- else }}
-  name: Hono {{ $adapter }}
-  {{- if .dot.Values.deviceConnectionService.enabled }}
-  host: {{ .dot.Release.Name }}-service-device-connection
-  {{- else if .dot.Values.deviceRegistryExample.enabled }}
-  host: {{ .dot.Release.Name }}-service-device-registry
-  {{- else }}
-  {{- required ".Values.deviceConnectionService.enabled MUST be set to true if example Device Registry is disabled and no other Device Connection service is configured" nil }}
-  {{- end }}
-  port: 5671
-  credentialsPath: /etc/hono/adapter.credentials
-  trustStorePath: /etc/hono/trusted-certs.pem
-  hostnameVerificationRequired: false
-{{- end }}
 {{- if .dot.Values.prometheus.createInstance }}
 resource-limits:
   prometheus-based:

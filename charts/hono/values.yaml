@@ -1138,6 +1138,80 @@ deviceConnectionService:
     #  keyPath: "/etc/config/key.pem"
     #  certPath: "/etc/config/cert.pem"
 
+# command router service contains configuration properties for the
+# Command Router service.
+#NOTE: this is just a workaround to deploy this service.
+commandRouterService:
+  enabled: true
+  imageName: eclipse/hono-service-command-router
+  javaOptions: -XX:MinRAMPercentage=80 -XX:MaxRAMPercentage=80
+  resources:
+    requests:
+      cpu: "100m"
+      memory: "256Mi"
+    limits:
+      cpu: "1"
+      memory: "256Mi"
+  svc:
+    annotations: {}
+  extraSecretMounts: {}
+  hono:
+    app:
+      maxInstances: 1
+      startupTimeout: 180
+    auth:
+    registration:
+      name: "Hono Command Router"
+      host: eclipse-hono-service-device-registry
+      port: 5671
+      username: command-router@HONO
+      password: cmd-router-secret
+      trustStorePath: /etc/hono/trusted-certs.pem
+      hostnameVerificationRequired: false
+    command:
+      type: kafka
+      producerConfig:
+        bootstrap.servers: hono-kafka-bootstrap.default:9092
+      consumerConfig:
+        bootstrap.servers: hono-kafka-bootstrap.default:9092
+        key.serializer: "org.apache.kafka.common.serialization.StringSerializer"
+        value.serializer: "io.vertx.kafka.client.serialization.BufferSerializer"
+    commandRouter:
+      amqp:
+      registration:
+      command:
+        type: kafka
+        producerConfig:
+          bootstrap.servers: hono-kafka-bootstrap.default:9092
+        consumerConfig:
+          bootstrap.servers: hono-kafka-bootstrap.default:9092
+      vertx:
+
+      # DEPRECATED use the dataGridSpec property instead
+      # remote contains properties for configuring the Infinispan Hotrod connection
+      # to the data grid that should be used for storing the device connection data.
+      # This property MUST be set if "deviceConnectionService.enabled" is set to true
+      # and "dataGridExample.enabled" is set to false (the default).
+      # Please refer to https://docs.jboss.org/infinispan/9.4/apidocs/org/infinispan/client/hotrod/configuration/package-summary.html#package.description
+      # for a list of configuration properties.
+      remote:
+      #  serverList: hono-data-grid:11222
+      #  authServerName: hono-data-grid
+      #  authUsername: hono
+      #  authPassword: hono-secret
+
+    # healthCheck contains configuration properties for the service's
+    # health check server as defined by
+    # https://www.eclipse.org/hono/docs/admin-guide/monitoring-tracing-config/#health-check-server-configuration
+    # If not set, a TLS secured health check server is configured listening on
+    # all network interfaces on port 8088 using the service's
+    # example key and cert.'
+    healthCheck:
+    #  bindAddress: 0.0.0.0
+    #  port: 12000
+    #  keyPath: "/etc/config/key.pem"
+    #  certPath: "/etc/config/cert.pem"
+
 prometheus:
   # createInstance indicates whether a Prometheus server should be created
   # using the Prometheus chart.
