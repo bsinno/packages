@@ -225,7 +225,6 @@ The scope passed in is expected to be a dict with keys
 {{- define "hono.kafkaMessagingConfig" -}}
 {{- include "hono.kafkaConfigCheck" (dict "dot" .dot) }}
 kafka:
-  defaultClientIdPrefix: {{ .component }}
 {{- if .dot.Values.kafkaMessagingClusterExample.enabled }}
   commonClientConfig:
     bootstrap.servers: {{ .dot.Release.Name }}-{{ .dot.Values.kafka.nameOverride }}-0.{{ .dot.Release.Name }}-{{ .dot.Values.kafka.nameOverride }}-headless.{{ .dot.Release.Namespace }}:{{ .dot.Values.kafka.service.port }}
